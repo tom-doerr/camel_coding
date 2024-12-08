@@ -17,9 +17,9 @@ class CodingAgent:
     
     def __init__(self, system_message=None):
         """Initialize the coding agent"""
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv("DEEPSEEK_API_KEY")
         if not self.api_key:
-            raise ValueError("OPENAI_API_KEY environment variable not set")
+            raise ValueError("DEEPSEEK_API_KEY environment variable not set")
 
         try:
             self.client = AsyncOpenAI(

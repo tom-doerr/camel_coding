@@ -7,9 +7,9 @@ from openai import AsyncOpenAI
 
 async def test_deepseek_api():
     """Test direct communication with DeepSeek API"""
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("DEEPSEEK_API_KEY")
     if not api_key:
-        print("Error: OPENAI_API_KEY environment variable not set")
+        print("Error: DEEPSEEK_API_KEY environment variable not set")
         return
 
     client = AsyncOpenAI(
