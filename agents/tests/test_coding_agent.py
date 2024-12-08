@@ -3,7 +3,7 @@ Tests for the autonomous coding agent
 """
 import pytest
 import os
-from ..coding_agent import CodingAgent, CodingTask
+from agents.coding_agent import CodingAgent, CodingTask
 
 def test_agent_initialization():
     """Test that agent initializes properly with API key"""
