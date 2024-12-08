@@ -84,6 +84,65 @@ async def test_empty_response():
             assert result == "def add(a, b):\n    return a + b"  # Fallback response
 
 @pytest.mark.asyncio
+async def test_code_extraction():
+    """Test extracting code from CAMEL response"""
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
+        agent = CodingAgent()
+        task = CodingTask(description="show time")
+        
+        # Test response with "> Code:" marker
+        mock_response = MagicMock()
+        mock_response.content = """
+[35m> Explanation:
+Some explanation here
+[35m> Code:
+def show_time():
+    return "12:00"
+2024-12-08 INFO - Some debug info"""
+        
+        with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
+            mock_step.return_value = mock_response
+            result = await agent.generate(task)
+            assert "def show_time" in result
+            assert "INFO -" not in result
+            assert "Explanation" not in result
+            
+        # Test response without marker but with debug info
+        mock_response.content = """def another_func():
+    pass
+2024-12-08 INFO - Debug info"""
+        
+        with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
+            mock_step.return_value = mock_response
+            result = await agent.generate(task)
+            assert "def another_func" in result
+            assert "INFO -" not in result
+
+@pytest.mark.asyncio
+async def test_error_response():
+    """Test error response format"""
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
+        agent = CodingAgent()
+        task = CodingTask(description="show time")
+        
+        # Test completely empty response
+        mock_response = MagicMock()
+        mock_response.content = ""
+        
+        with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
+            mock_step.return_value = mock_response
+            result = await agent.generate(task)
+            assert "error_response" in result
+            assert "NotImplementedError" in result
+            
+        # Test invalid response format
+        mock_response.content = "Not a valid code block"
+        with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
+            mock_step.return_value = mock_response
+            result = await agent.generate(task)
+            assert "error_response" in result
+
+@pytest.mark.asyncio
 async def test_complex_tasks():
     """Test generating code for more complex tasks"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
@@ -95,7 +154,9 @@ async def test_complex_tasks():
         ]
         
         mock_response = MagicMock()
-        mock_response.content = "def sample():\n    pass"
+        mock_response.content = """[35m> Code:
+def sample():
+    pass"""
         
         for description in tasks:
             task = CodingTask(description=description)
@@ -103,4 +164,4 @@ async def test_complex_tasks():
                 mock_step.return_value = mock_response
                 result = await agent.generate(task)
                 assert isinstance(result, str)
-                assert len(result) > 0
+                assert "def sample" in result
