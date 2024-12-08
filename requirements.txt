@@ -1,3 +1,3 @@
 pytest>=8.3.3
 pytest-asyncio>=0.24.0
-camel-ai>=0.2.11
+deepseek-ai>=1.0.0
