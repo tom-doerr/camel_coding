@@ -56,7 +56,7 @@ class CodingAgent:
             prompt = f"Write a {task.language} function for: {task.description}\n"
             prompt += "Include proper error handling, type hints, and follow language best practices."
             
-            response = await self.agent.chat(prompt)
+            response = await self.agent.message(prompt)
             if not response.strip():
                 raise ValueError("Empty response from API")
                 

@@ -109,7 +109,7 @@ async def test_basic_function(agent):
         description="Write a function that adds two numbers",
         language="python"
     )
-    with patch.object(agent.agent, 'chat') as mock_chat:
+    with patch.object(agent.agent, 'message') as mock_chat:
         mock_chat.return_value = "def add(a: int, b: int) -> int:\n    return a + b"
         result = await agent.generate(task)
         assert isinstance(result, str)
@@ -124,7 +124,7 @@ async def test_complex_algorithm(agent):
         description="Write a function that implements merge sort",
         language="python"
     )
-    with patch.object(agent.agent, 'chat') as mock_chat:
+    with patch.object(agent.agent, 'message') as mock_chat:
         mock_response = """
 def merge_sort(arr: list) -> list:
     if len(arr) <= 1:
@@ -162,7 +162,7 @@ async def test_error_handling(agent):
         description="Write a function",
         language="python"
     )
-    with patch.object(agent.agent, 'chat', side_effect=Exception("API Error")):
+    with patch.object(agent.agent, 'message', side_effect=Exception("API Error")):
         result = await agent.generate(task)
         assert result == "def add(a, b):\n    return a + b"  # Fallback response
 
@@ -173,7 +173,7 @@ async def test_prompt_formatting(agent):
         description="Write a factorial function",
         language="python"
     )
-    with patch.object(agent.agent, 'chat') as mock_chat:
+    with patch.object(agent.agent, 'message') as mock_chat:
         await agent.generate(task)
         mock_chat.assert_called_once()
         prompt = mock_chat.call_args[0][0]
@@ -188,7 +188,7 @@ async def test_concurrent_requests(agent):
         for i in range(3)
     ]
     
-    with patch.object(agent.agent, 'chat') as mock_chat:
+    with patch.object(agent.agent, 'message') as mock_chat:
         mock_chat.return_value = "def test(): pass"
         results = await asyncio.gather(
             *[agent.generate(task) for task in tasks]
@@ -204,7 +204,7 @@ async def test_empty_response_handling(agent):
         description="Write a function",
         language="python"
     )
-    with patch.object(agent.agent, 'chat', return_value=""):
+    with patch.object(agent.agent, 'message', return_value=""):
         result = await agent.generate(task)
         assert result == "def add(a, b):\n    return a + b"  # Fallback response
 
@@ -216,7 +216,7 @@ async def test_long_description(agent):
         description=long_desc,
         language="python"
     )
-    with patch.object(agent.agent, 'chat') as mock_chat:
+    with patch.object(agent.agent, 'message') as mock_chat:
         mock_chat.return_value = "def test(): pass"
         result = await agent.generate(task)
         assert isinstance(result, str)
@@ -231,7 +231,7 @@ async def test_different_languages(agent):
             description="Write a hello world function",
             language=lang
         )
-        with patch.object(agent.agent, 'chat') as mock_chat:
+        with patch.object(agent.agent, 'message') as mock_chat:
             mock_chat.return_value = f"function hello() {{ console.log('Hello'); }}"
             result = await agent.generate(task)
             assert isinstance(result, str)
@@ -248,7 +248,7 @@ async def test_invalid_task(agent):
     ]
     
     for task in invalid_tasks:
-        with patch.object(agent.agent, 'chat') as mock_chat:
+        with patch.object(agent.agent, 'message') as mock_chat:
             result = await agent.generate(task)
             assert result == "def add(a, b):\n    return a + b"  # Fallback response
             mock_chat.assert_not_called()
