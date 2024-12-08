@@ -1,5 +1,5 @@
 """
-Autonomous coding agent using CAMEL and DeepSeq
+Autonomous coding agent implementation
 """
 import os
 from typing import List, Optional, Dict, Any
