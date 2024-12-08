@@ -34,7 +34,8 @@ async def compare_models():
                     print("-" * 40)
                     print(result)
                     print("-" * 40)
-                print("-" * 40)
+                except Exception as e:
+                    print(f"Error generating code: {e}")
                 
         except ValueError as e:
             print(f"Error: {e}")
