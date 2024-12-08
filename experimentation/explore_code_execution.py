@@ -26,9 +26,13 @@ def explore_interpreters():
         print("-" * 20)
         
         # Get supported code types
-        if hasattr(interpreter_class, 'supported_code_types'):
-            supported = interpreter_class.supported_code_types()
+        try:
+            # Create instance with default parameters
+            interpreter = interpreter_class(require_confirm=False)
+            supported = interpreter.supported_code_types()
             print(f"Supported code types: {', '.join(supported)}")
+        except Exception as e:
+            print(f"Error getting supported types: {str(e)}")
             
         # Show initialization parameters
         init_params = interpreter_class.__init__.__annotations__
