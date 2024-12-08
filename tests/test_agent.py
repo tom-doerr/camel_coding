@@ -21,7 +21,7 @@ class MockChatAgent:
 def mock_env():
     """Fixture to set up test environment variables"""
     original_env = dict(os.environ)
-    os.environ["DEEPSEEK_API_KEY"] = "test_key"
+    os.environ["DEEPSEEK_API_KEY"] = "dummy_key"
     yield
     os.environ.clear()
     os.environ.update(original_env)
@@ -51,7 +51,7 @@ async def test_api_connection():
 @pytest.mark.asyncio
 async def test_camel_model_creation():
     """Test CAMEL model initialization"""
-    with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test_key"}):
+    with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "dummy_key"}):
         with patch('camel.models.ModelFactory.create') as mock_create:
             mock_model = MagicMock()
             mock_create.return_value = mock_model
@@ -87,7 +87,7 @@ async def test_missing_api_key():
 @pytest.mark.asyncio
 async def test_model_configuration():
     """Test model configuration options"""
-    with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
+    with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "dummy_key"}):
         with patch('camel.models.ModelFactory.create') as mock_create:
             mock_model = MagicMock()
             mock_create.return_value = mock_model
