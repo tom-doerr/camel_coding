@@ -65,7 +65,7 @@ async def test_camel_model_creation():
             # Test model creation
             mock_create.assert_called_once_with(
                 model_platform=ModelPlatformType.OPENAI,
-                model_type=ModelType.GPT_4,
+                model_type="gpt-4o-mini",
             )
             
             # Test ChatAgent creation

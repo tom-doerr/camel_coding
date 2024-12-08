@@ -21,12 +21,13 @@ def test_camel():
     task = "Review a Python function that calculates factorial"
 
     try:
-        # Initialize role-playing session
+        # Initialize role-playing session with specific model
         session = RolePlaying(
             user_role_name=user_role,
             assistant_role_name=assistant_role,
             task_prompt=task,
             with_task_specify=True,
+            model_type="gpt-4o-mini"
         )
         
         # Print initial setup
