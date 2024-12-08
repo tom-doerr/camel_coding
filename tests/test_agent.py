@@ -134,7 +134,9 @@ def test_error_response():
         with patch.object(agent.agent, 'step') as mock_step:
             mock_step.return_value = mock_response
             result = agent.generate(task)
-            assert "error_response" in result
+            assert isinstance(result, str)
+            assert "def error_response" in result
+            assert "NotImplementedError" in result
 
 def test_complex_tasks():
     """Test generating code for more complex tasks"""
