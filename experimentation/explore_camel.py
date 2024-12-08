@@ -2,10 +2,12 @@
 Script to explore CAMEL tools and capabilities
 """
 import os
+import inspect
 from camel.agents import EmbodiedAgent
 from camel.messages import BaseMessage
 from camel.generators import SystemMessageGenerator
 from camel.types import RoleType
+from camel import toolkits
 
 def list_available_tools():
     """List available CAMEL tools and capabilities"""
@@ -49,6 +51,19 @@ def list_available_tools():
     print("\nRole Types:")
     for role_type in RoleType:
         print(f"- {role_type.name}")
+        
+    # Explore toolkits
+    print("\nAvailable Toolkits:")
+    toolkit_members = inspect.getmembers(toolkits)
+    for name, obj in toolkit_members:
+        if inspect.ismodule(obj):
+            print(f"\n- {name}:")
+            module_members = inspect.getmembers(obj)
+            for member_name, member_obj in module_members:
+                if inspect.isclass(member_obj):
+                    print(f"  - Class: {member_name}")
+                elif inspect.isfunction(member_obj):
+                    print(f"  - Function: {member_name}")
 
 def main():
     """Main function"""
