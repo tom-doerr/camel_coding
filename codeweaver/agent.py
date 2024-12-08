@@ -1,13 +1,12 @@
 """
-Autonomous coding agent implementation using CAMEL framework
+Autonomous coding agent implementation using OpenAI API
 """
 import os
 from dataclasses import dataclass
-from typing import Optional, List
-from camel.agents import EmbodiedAgent
+from typing import Optional
+from openai import AsyncOpenAI
 from camel.messages import BaseMessage
-from camel.toolkits import OpenAIFunction, SubProcessInterpreter
-from camel.types import RoleType
+from camel.agents import ChatAgent
 
 @dataclass
 class CodingTask:
@@ -16,7 +15,7 @@ class CodingTask:
     language: str
 
 class CodingAgent:
-    """An autonomous coding agent using CAMEL framework"""
+    """An autonomous coding agent using OpenAI API with CAMEL integration"""
     
     def __init__(self, system_message=None):
         """Initialize the coding agent"""
@@ -24,13 +23,14 @@ class CodingAgent:
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
 
+        self.client = AsyncOpenAI(api_key=self.api_key)
         self.system_message = system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
         
-        # Initialize the embodied agent with tools
-        self.agent = EmbodiedAgent(
+        # Initialize CAMEL chat agent
+        self.agent = ChatAgent(
             system_message=self.system_message,
-            code_interpreter=SubProcessInterpreter(),
-            verbose=True
+            model_name="gpt-4o-mini",
+            temperature=0.7
         )
         
     async def generate(self, task: CodingTask) -> str:
