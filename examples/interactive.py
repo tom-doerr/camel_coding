@@ -32,14 +32,26 @@ async def main():
                 task = CodingTask(description=description)
                 print("\nGenerating code...\n")
                 
-                try:
-                    result = await agent.generate(task)
+                result = await agent.generate(task)
+                
+                if result:
                     print("Generated Code:")
                     print("-" * 40)
                     print(result)
                     print("-" * 40)
-                except Exception as e:
-                    print(f"Error generating code: {e}")
+                    
+                    # Ask if user wants to save the code
+                    print("\nWould you like to save this code to a file? [y/N]:")
+                    save = input("> ").lower().strip()
+                    if save == 'y':
+                        print("Enter filename (default: output.py):")
+                        filename = input("> ").strip() or "output.py"
+                        try:
+                            with open(filename, 'w') as f:
+                                f.write(result)
+                            print(f"Code saved to {filename}")
+                        except Exception as e:
+                            print(f"Error saving file: {e}")
                     
             except KeyboardInterrupt:
                 print("\nInterrupted. Enter 'quit' to exit or continue with a new task.")

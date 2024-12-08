@@ -73,9 +73,28 @@ class CodingAgent:
             
             if not response or not response.content:
                 raise ValueError("Empty response from agent")
+            
+            # Extract code from response
+            content = response.content.strip()
+            
+            # Look for code block after "> Code:" marker
+            if "> Code:" in content:
+                code = content.split("> Code:")[1].strip()
+            else:
+                code = content
                 
-            return response.content.strip()
+            # Remove any trailing logging/debug info
+            if "INFO -" in code:
+                code = code.split("INFO -")[0].strip()
+                
+            if not code:
+                raise ValueError("No code found in response")
+                
+            return code
             
         except Exception as e:
             print(f"Error generating code: {e}")
-            return "def add(a, b):\n    return a + b"  # Fallback response
+            # Return a more informative error response
+            return """def error_response():
+    \"\"\"This is a placeholder returned due to an error in code generation\"\"\"
+    raise NotImplementedError("Code generation failed - please try again")"""
