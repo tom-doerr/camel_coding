@@ -26,11 +26,10 @@ class CodingAgent:
         self.client = AsyncOpenAI(api_key=self.api_key)
         self.system_message = system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
         
-        # Initialize CAMEL chat agent
+        # Initialize CAMEL chat agent with role configuration
         self.agent = ChatAgent(
             system_message=self.system_message,
-            model_name="gpt-4o-mini",
-            temperature=0.7
+            model_config={"model": "gpt-4o-mini", "temperature": 0.7}
         )
         
     async def generate(self, task: CodingTask) -> str:
