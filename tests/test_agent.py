@@ -6,15 +6,62 @@ import os
 from typing import Optional
 import asyncio
 from unittest.mock import patch, MagicMock
-from camel.agents import ChatAgent
+from camel.agents import ChatAgent, RoleType
+from camel.messages import BaseMessage
 from codeweaver.agent import CodingAgent, CodingTask
 
+class MockChatAgent:
+    """Mock ChatAgent for testing"""
+    async def message(self, prompt: str) -> BaseMessage:
+        return BaseMessage(role="assistant", content="def test(): pass")
+
 @pytest.fixture
-def agent():
+def mock_env():
+    """Fixture to set up test environment variables"""
+    original_env = dict(os.environ)
+    os.environ["OPENAI_API_KEY"] = "test_key"
+    yield
+    os.environ.clear()
+    os.environ.update(original_env)
+
+@pytest.fixture
+def agent(mock_env):
     """Fixture to create a CodingAgent instance"""
-    if "OPENAI_API_KEY" not in os.environ:
-        os.environ["OPENAI_API_KEY"] = "test_key"
     return CodingAgent()
+
+@pytest.mark.asyncio
+async def test_api_connection():
+    """Test API connection handling"""
+    # Test with invalid API key
+    with pytest.raises(ValueError) as exc_info:
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "invalid_key"}):
+            agent = CodingAgent()
+            task = CodingTask(description="test", language="python")
+            await agent.generate(task)
+    assert "API connection failed" in str(exc_info.value)
+
+    # Test with missing API key
+    with pytest.raises(ValueError) as exc_info:
+        with patch.dict(os.environ, {}, clear=True):
+            CodingAgent()
+    assert "OPENAI_API_KEY environment variable not set" in str(exc_info.value)
+
+@pytest.mark.asyncio
+async def test_camel_model_creation():
+    """Test CAMEL model initialization"""
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
+        agent = CodingAgent()
+        
+        # Test ChatAgent creation
+        assert isinstance(agent.agent, ChatAgent)
+        assert agent.agent.role_type == RoleType.ASSISTANT
+        
+        # Test with custom system message
+        with patch('camel.agents.ChatAgent') as mock_chat_agent:
+            mock_chat_agent.return_value = MockChatAgent()
+            agent = CodingAgent(system_message="Custom message")
+            mock_chat_agent.assert_called_once()
+            assert "Custom message" in str(mock_chat_agent.call_args)
 
 def test_coding_agent_initialization(agent):
     """Test that the CodingAgent can be initialized"""

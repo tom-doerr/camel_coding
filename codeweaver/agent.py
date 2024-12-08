@@ -15,15 +15,20 @@ class CodingTask:
 class CodingAgent:
     """An autonomous coding agent using CAMEL"""
     
-    def __init__(self):
+    def __init__(self, system_message=None):
         """Initialize the coding agent"""
-        if not os.getenv("OPENAI_API_KEY"):
+        self.api_key = os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
-            
-        # Initialize the chat agent
-        self.agent = ChatAgent(
-            system_message="You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
-        )
+
+        try:
+            # Initialize the chat agent
+            self.agent = ChatAgent(
+                system_message=system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations.",
+                role_type=RoleType.ASSISTANT
+            )
+        except Exception as e:
+            raise ValueError(f"API connection failed: {str(e)}")
         
     async def generate(self, task: CodingTask) -> str:
         """Generate code for the given task"""
