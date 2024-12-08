@@ -1,12 +1,14 @@
 """
-Autonomous coding agent implementation using OpenAI API
+Autonomous coding agent implementation using CAMEL EmbodiedAgent
 """
 import os
 from dataclasses import dataclass
 from typing import Optional
 from openai import AsyncOpenAI
 from camel.messages import BaseMessage
-from camel.agents import ChatAgent
+from camel.agents import EmbodiedAgent
+from camel.generators import SystemMessageGenerator
+from camel.types import RoleType
 
 @dataclass
 class CodingTask:
@@ -23,12 +25,23 @@ class CodingAgent:
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
 
-        self.client = AsyncOpenAI(api_key=self.api_key)
-        self.system_message = system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
+        # Initialize system message generator
+        role = "Expert Programmer"
+        task = "Writing clean, efficient code following best practices"
+        meta_dict = {"role": role, "task": task}
+        role_tuple = (role, RoleType.EMBODIMENT)
         
-        # Initialize CAMEL chat agent
-        self.agent = ChatAgent(
-            system_message=self.system_message
+        # Generate system message
+        sys_msg_gen = SystemMessageGenerator()
+        default_sys_msg = sys_msg_gen.from_dict(meta_dict=meta_dict, role_tuple=role_tuple)
+        
+        # Use provided system message or default
+        self.system_message = system_message or default_sys_msg
+        
+        # Initialize CAMEL embodied agent
+        self.agent = EmbodiedAgent(
+            system_message=self.system_message,
+            verbose=True
         )
         
     async def generate(self, task: CodingTask) -> str:
@@ -39,12 +52,20 @@ class CodingAgent:
             return "def add(a, b):\n    return a + b"  # Fallback for invalid input
             
         try:
-            # Create user message
-            prompt = f"Write a {task.language} function for: {task.description}\n"
-            prompt += "Include proper error handling, type hints, and follow language best practices."
+            # Create user message with specific task
+            prompt = (
+                f"Write a {task.language} function that implements this task:\n"
+                f"{task.description}\n\n"
+                "Requirements:\n"
+                "1. Include proper error handling\n"
+                "2. Add type hints where applicable\n" 
+                "3. Follow language best practices\n"
+                "4. Write clean, maintainable code\n"
+                "5. Only return the code, no explanations"
+            )
             
             user_msg = BaseMessage.make_user_message(
-                role_name='user',
+                role_name="Programmer",
                 content=prompt
             )
             
