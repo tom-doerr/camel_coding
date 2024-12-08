@@ -2,7 +2,7 @@
 Direct test of CAMEL API integration
 """
 import os
-from camel.agents import RolePlaying
+from camel.societies import RolePlaying
 from colorama import Fore, init
 
 # Initialize colorama
