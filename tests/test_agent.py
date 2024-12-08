@@ -1,5 +1,5 @@
 """
-Tests for the autonomous coding agent
+Tests for the autonomous coding agent using CAMEL
 """
 import pytest
 import os
@@ -8,8 +8,8 @@ from codeweaver.agent import CodingAgent, CodingTask
 @pytest.fixture
 def agent():
     """Fixture to create a CodingAgent instance"""
-    if "DEEPSEEK_API_KEY" not in os.environ:
-        os.environ["DEEPSEEK_API_KEY"] = "test_key"
+    if "OPENAI_API_KEY" not in os.environ:
+        os.environ["OPENAI_API_KEY"] = "test_key"
     return CodingAgent()
 
 def test_coding_agent_initialization(agent):
@@ -25,20 +25,8 @@ async def test_coding_agent_generate(agent):
     )
     result = await agent.generate(task)
     assert isinstance(result, str)
-    assert "def" in result  # Basic check that we got some code
-    assert "return" in result
-
-@pytest.mark.asyncio
-async def test_api_connection(agent):
-    """Test that we can connect to the DeepSeek API"""
-    task = CodingTask(
-        description="Write a simple hello world function",
-        language="python"
-    )
-    result = await agent.generate(task)
-    assert isinstance(result, str)
-    assert len(result) > 0
     assert "def" in result
+    assert "return" in result
 
 @pytest.mark.asyncio
 async def test_complex_task(agent):
