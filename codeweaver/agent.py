@@ -57,3 +57,26 @@ class CodingAgent:
         """Suggest and implement code improvements"""
         # Will implement in future PR
         return ""
+"""
+Autonomous coding agent implementation
+"""
+from dataclasses import dataclass
+import os
+
+@dataclass
+class CodingTask:
+    """A coding task to be performed by the agent"""
+    description: str
+    language: str
+
+class CodingAgent:
+    """An autonomous coding agent"""
+    
+    def __init__(self):
+        """Initialize the coding agent"""
+        self.api_key = os.getenv("DEEPSEQ_API_KEY")
+        
+    async def generate(self, task: CodingTask) -> str:
+        """Generate code for the given task"""
+        # TODO: Implement actual code generation
+        return "def add(a, b):\n    return a + b"
