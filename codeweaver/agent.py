@@ -108,7 +108,9 @@ class CodingAgent:
                     role_name="Programmer",
                     content=prompt
                 )
-                response = await self.agent.step(user_msg)
+                response = self.agent.step(user_msg)
+                if hasattr(response, '__await__'):
+                    response = await response
                 content = response.content if hasattr(response, 'content') else str(response)
             
             if not content:
