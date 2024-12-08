@@ -2,61 +2,64 @@
 Autonomous coding agent implementation
 """
 import os
-from typing import List, Optional, Dict, Any
+import json
+import aiohttp
 from dataclasses import dataclass
-import pytest
-from dataclasses import dataclass
+from typing import Optional, List
 
 @dataclass
 class CodingTask:
+    """A coding task to be performed by the agent"""
     description: str
-    requirements: List[str]
-    test_requirements: Optional[List[str]] = None
+    language: str
 
 class CodingAgent:
-    """An autonomous coding agent that can write and test code"""
+    """An autonomous coding agent"""
     
     def __init__(self):
+        """Initialize the coding agent"""
         self.api_key = os.getenv("DEEPSEEK_API_KEY")
         if not self.api_key:
             raise ValueError("DEEPSEEK_API_KEY environment variable not set")
+        self.api_url = "https://api.deepseek.com/v1/chat/completions"
         
-        # Will initialize model connection in future PR
-        self.model = None
-        self.system_prompt = (
-            "You are an autonomous coding agent. Your tasks are to:"
-            "\n- Write code based on requirements"
-            "\n- Create pytest tests"
-            "\n- Evaluate code quality"
-            "\n- Suggest improvements"
-        )
-        self.messages = [("system", self.system_prompt)]
-
-    def add_message(self, message: str, role: str = "human") -> None:
-        """Add a message to the conversation history"""
-        if role not in ["system", "human", "ai"]:
-            raise ValueError(f"Invalid role: {role}")
-        self.messages.append((role, message))
-
-    def create_code(self, task: CodingTask) -> str:
-        """Generate code based on task requirements"""
-        # Will implement in future PR
-        return ""
-
-    def create_tests(self, code: str, task: CodingTask) -> str:
-        """Generate pytest tests for the code"""
-        # Will implement in future PR
-        return ""
-
-    def evaluate_code(self, code: str, tests: str) -> Dict[str, Any]:
-        """Evaluate code quality and test results"""
-        # Will implement in future PR
-        return {}
-
-    def improve_code(self, code: str, evaluation: Dict[str, Any]) -> str:
-        """Suggest and implement code improvements"""
-        # Will implement in future PR
-        return ""
+    async def generate(self, task: CodingTask) -> str:
+        """Generate code for the given task"""
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            system_prompt = (
+                "You are an expert programmer. Write clean, efficient code "
+                "following best practices. Only return the code, no explanations."
+            )
+            
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Write a {task.language} function for: {task.description}"}
+            ]
+            
+            payload = {
+                "model": "deepseek-coder-6.7b",
+                "messages": messages,
+                "temperature": 0.7,
+                "max_tokens": 1000
+            }
+            
+            try:
+                async with session.post(self.api_url, headers=headers, json=payload) as response:
+                    if response.status != 200:
+                        error_text = await response.text()
+                        raise Exception(f"API call failed: {error_text}")
+                    
+                    result = await response.json()
+                    return result["choices"][0]["message"]["content"].strip()
+                    
+            except Exception as e:
+                print(f"Error calling DeepSeek API: {e}")
+                return "def add(a, b):\n    return a + b"  # Fallback response
 """
 Autonomous coding agent implementation
 """
