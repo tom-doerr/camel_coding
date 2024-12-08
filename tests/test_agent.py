@@ -8,8 +8,8 @@ from codeweaver.agent import CodingAgent, CodingTask
 @pytest.fixture
 def agent():
     """Fixture to create a CodingAgent instance"""
-    if "OPENAI_API_KEY" not in os.environ:
-        os.environ["OPENAI_API_KEY"] = "test_key"
+    if "DEEPSEEK_API_KEY" not in os.environ:
+        os.environ["DEEPSEEK_API_KEY"] = "test_key"
     return CodingAgent()
 
 def test_coding_agent_initialization(agent):
