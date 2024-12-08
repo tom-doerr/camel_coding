@@ -84,6 +84,24 @@ async def test_missing_api_key():
             CodingAgent()
     assert "OPENAI_API_KEY environment variable not set" in str(exc_info.value)
 
+@pytest.mark.asyncio
+async def test_model_configuration():
+    """Test model configuration options"""
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
+        with patch('camel.models.ModelFactory.create') as mock_create:
+            mock_model = MagicMock()
+            mock_create.return_value = mock_model
+            
+            # Test default configuration
+            agent = CodingAgent()
+            mock_create.assert_called_with(
+                model_platform=ModelPlatformType.OPENAI,
+                model_type=ModelType.GPT_4,
+            )
+            
+            # Verify model is properly passed to ChatAgent
+            assert agent.agent.model == mock_model
+
 @pytest.mark.asyncio 
 async def test_basic_function(agent):
     """Test generating a simple function"""
