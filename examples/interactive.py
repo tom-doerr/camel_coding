@@ -19,20 +19,17 @@ async def main():
     try:
         while True:
             try:
-                print("\nWhat would you like me to code? (description):")
+                print("\nWhat would you like me to code? (or 'quit' to exit):")
                 description = input("> ")
                 
                 if description.lower() == 'quit':
                     break
                     
-                print("\nWhat programming language?")
-                language = input("> ")
-                
-                if not description.strip() or not language.strip():
+                if not description.strip():
                     print("Invalid input. Please try again.")
                     continue
                     
-                task = CodingTask(description=description, language=language)
+                task = CodingTask(description=description)
                 print("\nGenerating code...\n")
                 
                 try:

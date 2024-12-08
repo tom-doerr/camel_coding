@@ -38,10 +38,7 @@ async def test_basic_function():
     """Test generating a simple function"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
-        task = CodingTask(
-            description="Write a function that adds two numbers",
-            language="python"
-        )
+        task = CodingTask(description="Write a function that adds two numbers")
         
         mock_response = MagicMock()
         mock_response.content = "def add(a: int, b: int) -> int:\n    return a + b"
@@ -61,9 +58,8 @@ async def test_invalid_task():
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
         invalid_tasks = [
-            CodingTask(description="", language="python"),
-            CodingTask(description="Write code", language=""),
-            CodingTask(description=" ", language=" ")
+            CodingTask(description=""),
+            CodingTask(description=" ")
         ]
         
         for task in invalid_tasks:
@@ -77,10 +73,7 @@ async def test_empty_response():
     """Test handling empty response from agent"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
-        task = CodingTask(
-            description="Write a simple function",
-            language="python"
-        )
+        task = CodingTask(description="Write a simple function")
         
         mock_response = MagicMock()
         mock_response.content = ""
@@ -91,20 +84,21 @@ async def test_empty_response():
             assert result == "def add(a, b):\n    return a + b"  # Fallback response
 
 @pytest.mark.asyncio
-async def test_different_languages():
-    """Test generating code in different languages"""
+async def test_complex_tasks():
+    """Test generating code for more complex tasks"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
-        languages = ["python", "javascript", "java", "rust"]
+        tasks = [
+            "Write a function to calculate fibonacci numbers",
+            "Create a binary search implementation",
+            "Make a simple stack data structure"
+        ]
         
         mock_response = MagicMock()
-        mock_response.content = "// Sample code"
+        mock_response.content = "def sample():\n    pass"
         
-        for lang in languages:
-            task = CodingTask(
-                description="Write a hello world function",
-                language=lang
-            )
+        for description in tasks:
+            task = CodingTask(description=description)
             with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
                 mock_step.return_value = mock_response
                 result = await agent.generate(task)

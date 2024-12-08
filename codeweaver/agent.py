@@ -10,11 +10,10 @@ from camel.agents import EmbodiedAgent
 from camel.generators import SystemMessageGenerator
 from camel.types import RoleType
 
-@dataclass
+@dataclass 
 class CodingTask:
     """A coding task to be performed by the agent"""
     description: str
-    language: str
 
 class CodingAgent:
     """An autonomous coding agent using OpenAI API with CAMEL integration"""
@@ -46,20 +45,20 @@ class CodingAgent:
         
     async def generate(self, task: CodingTask) -> str:
         """Generate code for the given task"""
-        # Validate task inputs
-        if not task.description.strip() or not task.language.strip():
-            print("Invalid task inputs")
+        # Validate task input
+        if not task.description.strip():
+            print("Invalid task input")
             return "def add(a, b):\n    return a + b"  # Fallback for invalid input
             
         try:
             # Create user message with specific task
             prompt = (
-                f"Write a {task.language} function that implements this task:\n"
+                f"Write a Python function that implements this task:\n"
                 f"{task.description}\n\n"
                 "Requirements:\n"
                 "1. Include proper error handling\n"
                 "2. Add type hints where applicable\n" 
-                "3. Follow language best practices\n"
+                "3. Follow Python best practices\n"
                 "4. Write clean, maintainable code\n"
                 "5. Only return the code, no explanations"
             )
