@@ -41,7 +41,7 @@ def test_basic_function():
         mock_response.content = "def add(a: int, b: int) -> int:\n    return a + b"
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
-            mock_step.return_value = mock_response
+            mock_step.return_value = mock_response.content
             result = agent.generate(task)
             
             assert isinstance(result, str)
@@ -74,7 +74,7 @@ def test_empty_response():
         mock_response.content = ""
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
-            mock_step.return_value = mock_response
+            mock_step.return_value = mock_response.content
             result = agent.generate(task)
             assert "error_response" in result
             assert "NotImplementedError" in result
@@ -96,7 +96,7 @@ def show_time():
 2024-12-08 INFO - Some debug info"""
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
-            mock_step.return_value = mock_response
+            mock_step.return_value = mock_response.content
             result = agent.generate(task)
             assert "def show_time" in result
             assert "INFO -" not in result
@@ -108,7 +108,7 @@ def show_time():
 2024-12-08 INFO - Debug info"""
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
-            mock_step.return_value = mock_response
+            mock_step.return_value = mock_response.content
             result = agent.generate(task)
             assert "def another_func" in result
             assert "INFO -" not in result
@@ -154,7 +154,7 @@ def sample():
         for description in tasks:
             task = CodingTask(description=description)
             with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
-                mock_step.return_value = mock_response
+                mock_step.return_value = mock_response.content
                 result = agent.generate(task)
                 assert isinstance(result, str)
                 assert "def sample" in result
