@@ -3,11 +3,7 @@ Autonomous coding agent implementation using CAMEL
 """
 import os
 from dataclasses import dataclass
-from typing import Optional, List
-from camel.messages import BaseMessage
 from camel.agents import ChatAgent
-from camel.models import ModelFactory
-from camel.types import ModelPlatformType
 
 @dataclass
 class CodingTask:
@@ -20,45 +16,24 @@ class CodingAgent:
     
     def __init__(self):
         """Initialize the coding agent"""
-        self.api_key = os.getenv("DEEPSEEK_API_KEY")
+        self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
-            raise ValueError("DEEPSEEK_API_KEY environment variable not set")
+            raise ValueError("OPENAI_API_KEY environment variable not set")
             
-        # Initialize the model with DeepSeek configuration
-        self.model = ModelFactory.create(
-            model_platform=ModelPlatformType.CUSTOM,
-            model_type="deepseek-coder-6.7b",
-            url="https://api.deepseek.com/v1",
-            api_key=self.api_key,
-            model_config_dict={"temperature": 0.7}
-        )
-        
-        # Create system message for the coding agent
-        system_msg = BaseMessage.make_assistant_message(
-            role_name="Expert Programmer",
-            content="You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
-        )
-        
-        # Initialize the CAMEL chat agent
+        # Initialize the chat agent
         self.agent = ChatAgent(
-            system_message=system_msg,
-            model=self.model,
-            message_window_size=10
+            system_message="You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations.",
+            model_name="gpt-3.5-turbo",
+            temperature=0.7
         )
         
     async def generate(self, task: CodingTask) -> str:
         """Generate code for the given task"""
         try:
-            # Create the task message
-            task_msg = BaseMessage.make_user_message(
-                role_name="User",
-                content=f"Write a {task.language} function for: {task.description}"
-            )
-            
-            # Get response from agent
-            response = await self.agent.step(task_msg)
-            return response.msg.content.strip()
+            prompt = f"Write a {task.language} function for: {task.description}"
+            response = await self.agent.chat(prompt)
+            return response.strip()
             
         except Exception as e:
-            print(f"Error using CAMEL agent: {e}")
+            print(f"Error generating code: {e}")
             return "def add(a, b):\n    return a + b"  # Fallback response
