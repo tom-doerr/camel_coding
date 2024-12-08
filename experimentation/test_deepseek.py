@@ -28,8 +28,12 @@ async def compare_models():
                 print(f"\nTask: {task}")
                 print("-" * 20)
                 
-                result = await agent.generate(CodingTask(description=task))
-                print(result)
+                try:
+                    result = await agent.generate(CodingTask(description=task))
+                    print("\nGenerated Code:")
+                    print("-" * 40)
+                    print(result)
+                    print("-" * 40)
                 print("-" * 40)
                 
         except ValueError as e:
