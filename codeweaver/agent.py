@@ -62,6 +62,8 @@ Autonomous coding agent implementation
 """
 from dataclasses import dataclass
 import os
+import aiohttp
+import json
 
 @dataclass
 class CodingTask:
@@ -74,9 +76,35 @@ class CodingAgent:
     
     def __init__(self):
         """Initialize the coding agent"""
-        self.api_key = os.getenv("DEEPSEQ_API_KEY")
+        self.api_key = os.getenv("DEEPSEEK_API_KEY")
+        if not self.api_key:
+            raise ValueError("DEEPSEEK_API_KEY environment variable not set")
+        self.api_url = "https://api.deepseek.com/v1/chat/completions"
+        
+    async def _call_api(self, prompt: str) -> str:
+        """Make an API call to DeepSeek"""
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "messages": [{"role": "user", "content": prompt}],
+                "model": "deepseek-coder-6.7b",
+                "temperature": 0.7
+            }
+            
+            async with session.post(self.api_url, headers=headers, json=payload) as response:
+                if response.status != 200:
+                    raise Exception(f"API call failed with status {response.status}")
+                result = await response.json()
+                return result["choices"][0]["message"]["content"]
         
     async def generate(self, task: CodingTask) -> str:
         """Generate code for the given task"""
-        # TODO: Implement actual code generation
-        return "def add(a, b):\n    return a + b"
+        prompt = f"Write a {task.language} function for the following task: {task.description}"
+        try:
+            return await self._call_api(prompt)
+        except Exception as e:
+            print(f"Error calling DeepSeek API: {e}")
+            return "def add(a, b):\n    return a + b"  # Fallback response

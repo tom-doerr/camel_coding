@@ -29,6 +29,18 @@ async def test_coding_agent_generate(agent):
     assert "return" in result
 
 @pytest.mark.asyncio
+async def test_api_connection(agent):
+    """Test that we can connect to the DeepSeek API"""
+    task = CodingTask(
+        description="Write a simple hello world function",
+        language="python"
+    )
+    result = await agent.generate(task)
+    assert isinstance(result, str)
+    assert len(result) > 0
+    assert "def" in result
+
+@pytest.mark.asyncio
 async def test_complex_task(agent):
     """Test generating code for a more complex task"""
     task = CodingTask(
@@ -37,5 +49,6 @@ async def test_complex_task(agent):
     )
     result = await agent.generate(task)
     assert isinstance(result, str)
+    assert len(result) > 0
     assert "def" in result
     assert "fibonacci" in result.lower()
