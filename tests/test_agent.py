@@ -107,8 +107,8 @@ def show_time():
     pass
 2024-12-08 INFO - Debug info"""
         
-        with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
-            mock_step.return_value = mock_response.content
+        with patch.object(agent.agent, 'step') as mock_step:
+            mock_step.return_value = mock_response
             result = agent.generate(task)
             assert "def another_func" in result
             assert "INFO -" not in result
@@ -131,7 +131,7 @@ def test_error_response():
             
         # Test invalid response format
         mock_response.content = "Not a valid code block"
-        with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
+        with patch.object(agent.agent, 'step') as mock_step:
             mock_step.return_value = mock_response
             result = agent.generate(task)
             assert "error_response" in result
