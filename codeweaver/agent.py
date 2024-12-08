@@ -77,10 +77,16 @@ class CodingAgent:
             # Extract code from response
             content = response.content.strip()
             
+            if not content:
+                raise ValueError("Empty response from agent")
+                
             # Look for code block after "> Code:" marker
             if "> Code:" in content:
                 code = content.split("> Code:")[1].strip()
             else:
+                # Verify content looks like code
+                if not any(keyword in content.lower() for keyword in ['def ', 'class ', 'import ', 'from ']):
+                    raise ValueError("Response does not contain valid code")
                 code = content
                 
             # Remove any trailing logging/debug info

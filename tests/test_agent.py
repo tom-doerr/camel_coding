@@ -81,7 +81,8 @@ async def test_empty_response():
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
             mock_step.return_value = mock_response
             result = await agent.generate(task)
-            assert result == "def add(a, b):\n    return a + b"  # Fallback response
+            assert "error_response" in result
+            assert "NotImplementedError" in result
 
 @pytest.mark.asyncio
 async def test_code_extraction():
