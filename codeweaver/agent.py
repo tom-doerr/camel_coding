@@ -4,7 +4,10 @@ Autonomous coding agent implementation using CAMEL
 import os
 from dataclasses import dataclass
 from typing import Optional
-from camel.agents import ChatAgent, RoleType
+from camel.agents import ChatAgent
+from camel.messages import BaseMessage
+from camel.models import ModelFactory
+from camel.types import ModelType, ModelPlatformType
 
 @dataclass
 class CodingTask:
@@ -22,10 +25,22 @@ class CodingAgent:
             raise ValueError("OPENAI_API_KEY environment variable not set")
 
         try:
+            # Create the model
+            model = ModelFactory.create(
+                model_platform=ModelPlatformType.OPENAI,
+                model_type=ModelType.GPT_4,
+            )
+            
+            # Create system message
+            system_msg = BaseMessage.make_assistant_message(
+                role_name="Assistant",
+                content=system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
+            )
+            
             # Initialize the chat agent
             self.agent = ChatAgent(
-                system_message=system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations.",
-                role_type=RoleType.ASSISTANT
+                system_message=system_msg,
+                model=model
             )
         except Exception as e:
             raise ValueError(f"API connection failed: {str(e)}")

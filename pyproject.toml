@@ -12,6 +12,7 @@ pytest = "^8.3.3"
 pytest-asyncio = "^0.24.0"
 python-dotenv = "^1.0.0"
 camel-ai = "^0.2.11"
+openai = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]

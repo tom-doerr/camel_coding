@@ -6,8 +6,10 @@ import os
 from typing import Optional
 import asyncio
 from unittest.mock import patch, MagicMock
-from camel.agents import ChatAgent, RoleType
+from camel.agents import ChatAgent
 from camel.messages import BaseMessage
+from camel.models import ModelFactory
+from camel.types import ModelType, ModelPlatformType
 from codeweaver.agent import CodingAgent, CodingTask
 
 class MockChatAgent:
@@ -50,18 +52,24 @@ async def test_api_connection():
 async def test_camel_model_creation():
     """Test CAMEL model initialization"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
-        agent = CodingAgent()
-        
-        # Test ChatAgent creation
-        assert isinstance(agent.agent, ChatAgent)
-        assert agent.agent.role_type == RoleType.ASSISTANT
-        
-        # Test with custom system message
-        with patch('camel.agents.ChatAgent') as mock_chat_agent:
-            mock_chat_agent.return_value = MockChatAgent()
+        with patch('camel.models.ModelFactory.create') as mock_create:
+            mock_model = MagicMock()
+            mock_create.return_value = mock_model
+            
+            agent = CodingAgent()
+            
+            # Test model creation
+            mock_create.assert_called_once_with(
+                model_platform=ModelPlatformType.OPENAI,
+                model_type=ModelType.GPT_4,
+            )
+            
+            # Test ChatAgent creation
+            assert isinstance(agent.agent, ChatAgent)
+            
+            # Test with custom system message
             agent = CodingAgent(system_message="Custom message")
-            mock_chat_agent.assert_called_once()
-            assert "Custom message" in str(mock_chat_agent.call_args)
+            assert "Custom message" in str(agent.agent.system_message.content)
 
 def test_coding_agent_initialization(agent):
     """Test that the CodingAgent can be initialized"""
