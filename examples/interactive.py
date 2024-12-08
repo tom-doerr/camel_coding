@@ -10,7 +10,7 @@ async def main():
         agent = CodingAgent()
     except ValueError as e:
         print(f"Error: {e}")
-        print("Please set DEEPSEEK_API_KEY environment variable")
+        print("Please set OPENAI_API_KEY environment variable")
         return
     
     # Example task

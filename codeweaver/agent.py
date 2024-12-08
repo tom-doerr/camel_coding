@@ -1,5 +1,5 @@
 """
-Autonomous coding agent implementation using DeepSeek API
+Autonomous coding agent implementation using OpenAI API
 """
 import os
 from dataclasses import dataclass
@@ -13,18 +13,17 @@ class CodingTask:
     language: str
 
 class CodingAgent:
-    """An autonomous coding agent using DeepSeek API"""
+    """An autonomous coding agent using OpenAI API"""
     
     def __init__(self, system_message=None):
         """Initialize the coding agent"""
-        self.api_key = os.getenv("DEEPSEEK_API_KEY")
+        self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
-            raise ValueError("DEEPSEEK_API_KEY environment variable not set")
+            raise ValueError("OPENAI_API_KEY environment variable not set")
 
         try:
             self.client = AsyncOpenAI(
-                api_key=self.api_key,
-                base_url="https://api.deepseek.com/v1"
+                api_key=self.api_key
             )
             self.system_message = system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
         except Exception as e:
@@ -42,7 +41,7 @@ class CodingAgent:
             prompt += "Include proper error handling, type hints, and follow language best practices."
             
             response = await self.client.chat.completions.create(
-                model="deepseek-chat",
+                model="gpt-4",
                 messages=[
                     {"role": "system", "content": self.system_message},
                     {"role": "user", "content": prompt}

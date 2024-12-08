@@ -22,11 +22,11 @@ def mock_env():
     """Fixture to set up test environment variables"""
     original_env = dict(os.environ)
     # Save any existing API key
-    original_key = os.environ.get("DEEPSEEK_API_KEY")
+    original_key = os.environ.get("OPENAI_API_KEY")
     yield
     # Restore original environment
     if original_key:
-        os.environ["DEEPSEEK_API_KEY"] = original_key
+        os.environ["OPENAI_API_KEY"] = original_key
     else:
         os.environ.pop("DEEPSEEK_API_KEY", None)
 
@@ -40,7 +40,7 @@ async def test_api_connection():
     """Test API connection handling"""
     # Test with invalid API key
     with pytest.raises(ValueError) as exc_info:
-        with patch.dict(os.environ, {"DEEPSEEK_API_KEY": ""}):
+        with patch.dict(os.environ, {"OPENAI_API_KEY": ""}):
             agent = CodingAgent()
             task = CodingTask(description="test", language="python")
             await agent.generate(task)
@@ -91,7 +91,7 @@ async def test_missing_api_key():
 @pytest.mark.asyncio
 async def test_model_configuration():
     """Test model configuration options"""
-    with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "dummy_key"}):
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "dummy_key"}):
         with patch('camel.models.ModelFactory.create') as mock_create:
             mock_model = MagicMock()
             mock_create.return_value = mock_model
