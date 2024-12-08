@@ -40,8 +40,8 @@ def test_basic_function():
         mock_response = MagicMock()
         mock_response.content = "def add(a: int, b: int) -> int:\n    return a + b"
         
-        with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
-            mock_step.return_value = mock_response.content
+        with patch.object(agent.agent, 'step') as mock_step:
+            mock_step.return_value = mock_response
             result = agent.generate(task)
             
             assert isinstance(result, str)
