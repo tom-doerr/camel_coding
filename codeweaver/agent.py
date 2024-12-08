@@ -23,7 +23,6 @@ class CodingAgent:
         # Initialize the chat agent
         self.agent = ChatAgent(
             system_message="You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations.",
-            model_name="gpt-3.5-turbo",
             temperature=0.7
         )
         
