@@ -57,6 +57,25 @@ class CodingAgent:
             verbose=True
         )
         
+    async def _generate_with_deepseek(self, prompt: str) -> str:
+        """Generate code using DeepSeek API"""
+        client = AsyncOpenAI(
+            api_key=self.api_key,
+            base_url="https://api.deepseek.com/v1"
+        )
+        
+        response = await client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": self.system_message},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1000
+        )
+        
+        return response.choices[0].message.content
+
     async def generate(self, task: CodingTask) -> str:
         """Generate code for the given task"""
         # Validate task input
@@ -65,7 +84,7 @@ class CodingAgent:
             return "def add(a, b):\n    return a + b"  # Fallback for invalid input
             
         try:
-            # Create user message with specific task
+            # Create prompt
             prompt = (
                 f"Write a Python function that implements this task:\n"
                 f"{task.description}\n\n"
@@ -77,13 +96,16 @@ class CodingAgent:
                 "5. Only return the code, no explanations"
             )
             
-            user_msg = BaseMessage.make_user_message(
-                role_name="Programmer",
-                content=prompt
-            )
-            
-            # Get response from agent
-            response = await self.agent.step(user_msg)
+            # Get response based on model
+            if self.model == "deepseek":
+                content = await self._generate_with_deepseek(prompt)
+            else:
+                user_msg = BaseMessage.make_user_message(
+                    role_name="Programmer",
+                    content=prompt
+                )
+                response = await self.agent.step(user_msg)
+                content = response.content
             
             if not response or not response.content:
                 raise ValueError("Empty response from agent")

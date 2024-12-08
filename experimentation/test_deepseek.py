@@ -1,41 +1,40 @@
 """
-Direct test of DeepSeek API integration
+Test script for comparing OpenAI and DeepSeek model outputs
 """
 import os
 import asyncio
-from openai import AsyncOpenAI
+from codeweaver.agent import CodingAgent, CodingTask
 
-async def test_deepseek_api():
-    """Test direct communication with DeepSeek API"""
-    api_key = os.getenv("DEEPSEEK_API_KEY")
-    if not api_key:
-        print("Error: DEEPSEEK_API_KEY environment variable not set")
-        return
-
-    client = AsyncOpenAI(
-        api_key=api_key,
-        base_url="https://api.deepseek.com/v1"
-    )
+async def compare_models():
+    """Compare outputs from different models"""
+    # Test tasks
+    tasks = [
+        "Write a function to calculate the factorial of a number",
+        "Create a function to check if a string is a palindrome",
+        "Write a function to find the nth Fibonacci number"
+    ]
     
-    try:
-        response = await client.chat.completions.create(
-            model="deepseek-chat",
-            messages=[
-                {"role": "system", "content": "You are a helpful coding assistant."},
-                {"role": "user", "content": "Write a simple Python function that adds two numbers."}
-            ],
-            temperature=0.7,
-            max_tokens=1000,
-            stream=False
-        )
-        
-        print("API Response:")
-        print("-" * 40)
-        print(response.choices[0].message.content)
+    # Test with both models
+    models = ["openai", "deepseek"]
+    
+    for model in models:
+        print(f"\nTesting {model.upper()} model:")
         print("-" * 40)
         
-    except Exception as e:
-        print(f"API Error: {str(e)}")
-
+        try:
+            agent = CodingAgent(model=model)
+            
+            for task in tasks:
+                print(f"\nTask: {task}")
+                print("-" * 20)
+                
+                result = await agent.generate(CodingTask(description=task))
+                print(result)
+                print("-" * 40)
+                
+        except ValueError as e:
+            print(f"Error: {e}")
+            continue
+            
 if __name__ == "__main__":
-    asyncio.run(test_deepseek_api())
+    asyncio.run(compare_models())
