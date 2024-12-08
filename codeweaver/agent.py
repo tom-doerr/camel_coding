@@ -2,6 +2,7 @@
 Autonomous coding agent implementation using CAMEL EmbodiedAgent
 """
 import os
+import re
 from dataclasses import dataclass
 from typing import Optional
 from openai import AsyncOpenAI
@@ -114,10 +115,13 @@ class CodingAgent:
                 raise ValueError("Empty response from agent")
             
             # Extract code from response
-            content = response.content.strip()
+            content = content.strip()
             
             if not content:
                 raise ValueError("Empty response from agent")
+
+            # Remove ANSI color codes
+            content = re.sub(r'\x1b\[\d+m', '', content)
                 
             # Look for code block after "> Code:" marker
             if "> Code:" in content:
@@ -131,6 +135,9 @@ class CodingAgent:
             # Remove any trailing logging/debug info
             if "INFO -" in code:
                 code = code.split("INFO -")[0].strip()
+                
+            # Clean up any remaining ANSI codes
+            code = re.sub(r'\x1b\[\d+m', '', code)
                 
             if not code:
                 raise ValueError("No code found in response")
