@@ -133,7 +133,7 @@ def test_error_response():
         mock_response.content = "Not a valid code block"
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
             mock_step.return_value = mock_response
-            result = await agent.generate(task)
+            result = agent.generate(task)
             assert "error_response" in result
 
 def test_complex_tasks():
