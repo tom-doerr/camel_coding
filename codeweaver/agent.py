@@ -21,13 +21,8 @@ class CodingAgent:
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
 
-        try:
-            self.client = AsyncOpenAI(
-                api_key=self.api_key
-            )
-            self.system_message = system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
-        except Exception as e:
-            raise ValueError(f"API connection failed: {str(e)}")
+        self.client = AsyncOpenAI(api_key=self.api_key)
+        self.system_message = system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
         
     async def generate(self, task: CodingTask) -> str:
         """Generate code for the given task"""
