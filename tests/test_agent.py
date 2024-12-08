@@ -17,24 +17,21 @@ def mock_env():
     else:
         os.environ.pop("OPENAI_API_KEY", None)
 
-@pytest.mark.asyncio
-async def test_missing_api_key():
+def test_missing_api_key():
     """Test initialization with missing API key"""
     with pytest.raises(ValueError) as exc_info:
         with patch.dict(os.environ, {}, clear=True):
             CodingAgent()
     assert "OPENAI_API_KEY environment variable not set" in str(exc_info.value)
 
-@pytest.mark.asyncio
-async def test_agent_initialization():
+def test_agent_initialization():
     """Test agent initialization with tools"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
         assert agent.system_message is not None
         assert agent.agent is not None
 
-@pytest.mark.asyncio
-async def test_basic_function():
+def test_basic_function():
     """Test generating a simple function"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
@@ -45,15 +42,14 @@ async def test_basic_function():
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
             mock_step.return_value = mock_response
-            result = await agent.generate(task)
+            result = agent.generate(task)
             
             assert isinstance(result, str)
             assert "def add" in result
             assert "return" in result
             mock_step.assert_called_once()
 
-@pytest.mark.asyncio
-async def test_invalid_task():
+def test_invalid_task():
     """Test handling invalid task inputs"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
@@ -64,12 +60,11 @@ async def test_invalid_task():
         
         for task in invalid_tasks:
             with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
-                result = await agent.generate(task)
+                result = agent.generate(task)
                 assert result == "def add(a, b):\n    return a + b"  # Fallback response
                 mock_step.assert_not_called()
 
-@pytest.mark.asyncio
-async def test_empty_response():
+def test_empty_response():
     """Test handling empty response from agent"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
@@ -80,12 +75,11 @@ async def test_empty_response():
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
             mock_step.return_value = mock_response
-            result = await agent.generate(task)
+            result = agent.generate(task)
             assert "error_response" in result
             assert "NotImplementedError" in result
 
-@pytest.mark.asyncio
-async def test_code_extraction():
+def test_code_extraction():
     """Test extracting code from CAMEL response"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
@@ -103,7 +97,7 @@ def show_time():
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
             mock_step.return_value = mock_response
-            result = await agent.generate(task)
+            result = agent.generate(task)
             assert "def show_time" in result
             assert "INFO -" not in result
             assert "Explanation" not in result
@@ -115,12 +109,11 @@ def show_time():
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
             mock_step.return_value = mock_response
-            result = await agent.generate(task)
+            result = agent.generate(task)
             assert "def another_func" in result
             assert "INFO -" not in result
 
-@pytest.mark.asyncio
-async def test_error_response():
+def test_error_response():
     """Test error response format"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
@@ -132,7 +125,7 @@ async def test_error_response():
         
         with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
             mock_step.return_value = mock_response
-            result = await agent.generate(task)
+            result = agent.generate(task)
             assert "error_response" in result
             assert "NotImplementedError" in result
             
@@ -143,8 +136,7 @@ async def test_error_response():
             result = await agent.generate(task)
             assert "error_response" in result
 
-@pytest.mark.asyncio
-async def test_complex_tasks():
+def test_complex_tasks():
     """Test generating code for more complex tasks"""
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
         agent = CodingAgent()
@@ -163,6 +155,6 @@ def sample():
             task = CodingTask(description=description)
             with patch.object(agent.agent, 'step', new_callable=AsyncMock) as mock_step:
                 mock_step.return_value = mock_response
-                result = await agent.generate(task)
+                result = agent.generate(task)
                 assert isinstance(result, str)
                 assert "def sample" in result

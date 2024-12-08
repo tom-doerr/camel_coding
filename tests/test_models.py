@@ -6,8 +6,7 @@ import os
 from unittest.mock import patch, MagicMock, AsyncMock
 from codeweaver.agent import CodingAgent, CodingTask
 
-@pytest.mark.asyncio
-async def test_model_selection():
+def test_model_selection():
     """Test selecting different models"""
     # Test OpenAI
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
@@ -24,8 +23,7 @@ async def test_model_selection():
         CodingAgent(model="invalid")
     assert "Unsupported model" in str(exc_info.value)
 
-@pytest.mark.asyncio
-async def test_missing_api_keys():
+def test_missing_api_keys():
     """Test handling of missing API keys"""
     with patch.dict(os.environ, {}, clear=True):
         with pytest.raises(ValueError) as exc_info:

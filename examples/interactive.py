@@ -5,7 +5,7 @@ import asyncio
 import os
 from codeweaver.agent import CodingAgent, CodingTask
 
-async def main():
+def main():
     # Get model selection
     print("\nSelect model to use:")
     print("1. OpenAI (default)")
@@ -43,7 +43,7 @@ async def main():
                 task = CodingTask(description=description)
                 print("\nGenerating code...\n")
                 
-                result = await agent.generate(task)
+                result = agent.generate(task)
                 
                 if result:
                     print("Generated Code:")
@@ -74,4 +74,4 @@ async def main():
     print("\nThanks for using CodeWeaver!")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

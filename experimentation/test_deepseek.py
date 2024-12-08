@@ -5,7 +5,7 @@ import os
 import asyncio
 from codeweaver.agent import CodingAgent, CodingTask
 
-async def compare_models():
+def compare_models():
     """Compare outputs from different models"""
     # Test tasks
     tasks = [
@@ -29,7 +29,7 @@ async def compare_models():
                 print("-" * 20)
                 
                 try:
-                    result = await agent.generate(CodingTask(description=task))
+                    result = agent.generate(CodingTask(description=task))
                     print("\nGenerated Code:")
                     print("-" * 40)
                     print(result)
@@ -42,4 +42,4 @@ async def compare_models():
             continue
             
 if __name__ == "__main__":
-    asyncio.run(compare_models())
+    compare_models()

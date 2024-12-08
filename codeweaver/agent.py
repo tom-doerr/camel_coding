@@ -58,7 +58,7 @@ class CodingAgent:
             verbose=True
         )
         
-    async def _generate_with_deepseek(self, prompt: str) -> str:
+    def _generate_with_deepseek(self, prompt: str) -> str:
         """Generate code using DeepSeek API"""
         client = AsyncOpenAI(
             api_key=self.api_key,
@@ -68,7 +68,7 @@ class CodingAgent:
         # Convert system message to string if needed
         system_content = str(self.system_message) if hasattr(self.system_message, 'content') else self.system_message
         
-        response = await client.chat.completions.create(
+        response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
                 {"role": "system", "content": system_content},
@@ -80,7 +80,7 @@ class CodingAgent:
         
         return response.choices[0].message.content
 
-    async def generate(self, task: CodingTask) -> str:
+    def generate(self, task: CodingTask) -> str:
         """Generate code for the given task"""
         # Validate task input
         if not task.description.strip():
@@ -102,15 +102,13 @@ class CodingAgent:
             
             # Get response based on model
             if self.model == "deepseek":
-                content = await self._generate_with_deepseek(prompt)
+                content = self._generate_with_deepseek(prompt)
             else:
                 user_msg = BaseMessage.make_user_message(
                     role_name="Programmer",
                     content=prompt
                 )
                 response = self.agent.step(user_msg)
-                if hasattr(response, '__await__'):
-                    response = await response
                 content = response.content if hasattr(response, 'content') else str(response)
             
             if not content:
