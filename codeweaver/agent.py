@@ -64,10 +64,13 @@ class CodingAgent:
             base_url="https://api.deepseek.com/v1"
         )
         
+        # Convert system message to string if needed
+        system_content = str(self.system_message) if hasattr(self.system_message, 'content') else self.system_message
+        
         response = await client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": self.system_message},
+                {"role": "system", "content": system_content},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
@@ -105,9 +108,9 @@ class CodingAgent:
                     content=prompt
                 )
                 response = await self.agent.step(user_msg)
-                content = response.content
+                content = response.content if hasattr(response, 'content') else str(response)
             
-            if not response or not response.content:
+            if not content:
                 raise ValueError("Empty response from agent")
             
             # Extract code from response
