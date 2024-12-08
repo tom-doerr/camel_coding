@@ -17,9 +17,9 @@ class CodingAgent:
     """An autonomous coding agent that can write and test code"""
     
     def __init__(self):
-        self.api_key = os.getenv("DEEPSEQ_API_KEY")
+        self.api_key = os.getenv("DEEPSEEK_API_KEY")
         if not self.api_key:
-            raise ValueError("DEEPSEQ_API_KEY environment variable not set")
+            raise ValueError("DEEPSEEK_API_KEY environment variable not set")
         
         # Will initialize model connection in future PR
         self.model = None

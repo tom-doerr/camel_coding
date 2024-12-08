@@ -7,8 +7,8 @@ from codeweaver.agent import CodingAgent, CodingTask
 
 async def main():
     # Ensure API key is set
-    if "DEEPSEQ_API_KEY" not in os.environ:
-        print("Please set DEEPSEQ_API_KEY environment variable")
+    if "DEEPSEEK_API_KEY" not in os.environ:
+        print("Please set DEEPSEEK_API_KEY environment variable")
         return
 
     agent = CodingAgent()
