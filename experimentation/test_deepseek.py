@@ -12,15 +12,21 @@ async def test_deepseek_api():
         print("Error: OPENAI_API_KEY environment variable not set")
         return
 
-    client = AsyncOpenAI(api_key=api_key)
+    client = AsyncOpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com/v1"
+    )
     
     try:
         response = await client.chat.completions.create(
-            model="gpt-4",  # or your specific DeepSeek model
+            model="deepseek-chat",
             messages=[
                 {"role": "system", "content": "You are a helpful coding assistant."},
                 {"role": "user", "content": "Write a simple Python function that adds two numbers."}
-            ]
+            ],
+            temperature=0.7,
+            max_tokens=1000,
+            stream=False
         )
         
         print("API Response:")

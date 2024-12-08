@@ -1,13 +1,10 @@
 """
-Autonomous coding agent implementation using CAMEL
+Autonomous coding agent implementation using DeepSeek API
 """
 import os
 from dataclasses import dataclass
 from typing import Optional
-from camel.agents import ChatAgent
-from camel.messages import BaseMessage
-from camel.models import ModelFactory
-from camel.types import ModelType, ModelPlatformType
+from openai import AsyncOpenAI
 
 @dataclass
 class CodingTask:
@@ -16,7 +13,7 @@ class CodingTask:
     language: str
 
 class CodingAgent:
-    """An autonomous coding agent using CAMEL"""
+    """An autonomous coding agent using DeepSeek API"""
     
     def __init__(self, system_message=None):
         """Initialize the coding agent"""
@@ -25,24 +22,11 @@ class CodingAgent:
             raise ValueError("OPENAI_API_KEY environment variable not set")
 
         try:
-            # Create the model
-            model = ModelFactory.create(
-                model_platform=ModelPlatformType.OPENAI,
-                model_type=ModelType.GPT_4,
+            self.client = AsyncOpenAI(
+                api_key=self.api_key,
+                base_url="https://api.deepseek.com/v1"
             )
-            
-            # Create system message
-            system_msg = BaseMessage.make_assistant_message(
-                role_name="Assistant",
-                content=system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
-            )
-            
-            # Initialize the chat agent with role name and model
-            self.agent = ChatAgent(
-                "Assistant",  # Role name
-                system_message=system_msg,
-                model_config=model
-            )
+            self.system_message = system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
         except Exception as e:
             raise ValueError(f"API connection failed: {str(e)}")
         
@@ -57,11 +41,22 @@ class CodingAgent:
             prompt = f"Write a {task.language} function for: {task.description}\n"
             prompt += "Include proper error handling, type hints, and follow language best practices."
             
-            response = await self.agent.send_message(prompt)
-            if not response.strip():
+            response = await self.client.chat.completions.create(
+                model="deepseek-chat",
+                messages=[
+                    {"role": "system", "content": self.system_message},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=1000,
+                stream=False
+            )
+            
+            result = response.choices[0].message.content.strip()
+            if not result:
                 raise ValueError("Empty response from API")
                 
-            return response.strip()
+            return result
             
         except Exception as e:
             print(f"Error generating code: {e}")
