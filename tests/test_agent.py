@@ -14,8 +14,8 @@ from codeweaver.agent import CodingAgent, CodingTask
 
 class MockChatAgent:
     """Mock ChatAgent for testing"""
-    async def message(self, prompt: str) -> BaseMessage:
-        return BaseMessage(role="assistant", content="def test(): pass")
+    async def send_message(self, prompt: str) -> str:
+        return "def test(): pass"
 
 @pytest.fixture
 def mock_env():
@@ -109,7 +109,7 @@ async def test_basic_function(agent):
         description="Write a function that adds two numbers",
         language="python"
     )
-    with patch.object(agent.agent, 'message') as mock_chat:
+    with patch.object(agent.agent, 'send_message') as mock_chat:
         mock_chat.return_value = "def add(a: int, b: int) -> int:\n    return a + b"
         result = await agent.generate(task)
         assert isinstance(result, str)

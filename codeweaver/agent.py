@@ -37,10 +37,11 @@ class CodingAgent:
                 content=system_message or "You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations."
             )
             
-            # Initialize the chat agent
+            # Initialize the chat agent with role name and model
             self.agent = ChatAgent(
+                "Assistant",  # Role name
                 system_message=system_msg,
-                model=model
+                model_config=model
             )
         except Exception as e:
             raise ValueError(f"API connection failed: {str(e)}")
@@ -56,7 +57,7 @@ class CodingAgent:
             prompt = f"Write a {task.language} function for: {task.description}\n"
             prompt += "Include proper error handling, type hints, and follow language best practices."
             
-            response = await self.agent.message(prompt)
+            response = await self.agent.send_message(prompt)
             if not response.strip():
                 raise ValueError("Empty response from API")
                 
