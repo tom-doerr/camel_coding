@@ -8,6 +8,7 @@ from camel.messages import BaseMessage
 from camel.generators import SystemMessageGenerator
 from camel.types import RoleType
 from camel import toolkits
+from camel.toolkits import code_execution
 
 def list_available_tools():
     """List available CAMEL tools and capabilities"""
@@ -62,8 +63,24 @@ def list_available_tools():
             for member_name, member_obj in module_members:
                 if inspect.isclass(member_obj):
                     print(f"  - Class: {member_name}")
+                    # Special handling for code execution toolkit
+                    if name == "code_execution" and hasattr(member_obj, "__doc__"):
+                        doc = member_obj.__doc__
+                        if doc:
+                            print(f"    Documentation: {doc.strip()}")
+                        # List methods
+                        methods = inspect.getmembers(member_obj, 
+                            predicate=lambda x: inspect.isfunction(x) or inspect.ismethod(x))
+                        if methods:
+                            print("    Methods:")
+                            for method_name, method in methods:
+                                if not method_name.startswith("_"):  # Skip private methods
+                                    method_doc = method.__doc__ or "No documentation"
+                                    print(f"      - {method_name}: {method_doc.strip()}")
                 elif inspect.isfunction(member_obj):
                     print(f"  - Function: {member_name}")
+                    if member_obj.__doc__:
+                        print(f"    Documentation: {member_obj.__doc__.strip()}")
 
 def main():
     """Main function"""
