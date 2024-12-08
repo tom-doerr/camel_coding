@@ -41,9 +41,20 @@ def main():
             # Full path in outputs directory
             output_path = output_dir / filename
             
-            # Save the code
+            # Extract and clean the code from the response
+            clean_code = code
+            if isinstance(code, str):
+                # Remove any response object text
+                if "BaseMessage" in code:
+                    # Try to extract code block from CAMEL response
+                    if "> Code:" in code:
+                        clean_code = code.split("> Code:")[1].split("2024-")[0].strip()
+                    else:
+                        clean_code = "# Error: Could not extract valid code from response"
+            
+            # Save the cleaned code
             with open(output_path, "w") as f:
-                f.write(code)
+                f.write(clean_code)
                 
             print(f"\nCode generated successfully!")
             print(f"Saved to: {output_path}")
