@@ -5,7 +5,7 @@ import os
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
 import pytest
-from langchain.schema import SystemMessage, HumanMessage, AIMessage
+from dataclasses import dataclass
 
 @dataclass
 class CodingTask:
@@ -23,23 +23,20 @@ class CodingAgent:
         
         # Will initialize model connection in future PR
         self.model = None
-        self.system_message = SystemMessage(content=
+        self.system_prompt = (
             "You are an autonomous coding agent. Your tasks are to:"
             "\n- Write code based on requirements"
             "\n- Create pytest tests"
             "\n- Evaluate code quality"
             "\n- Suggest improvements"
         )
-        self.messages = [self.system_message]
+        self.messages = [("system", self.system_prompt)]
 
     def add_message(self, message: str, role: str = "human") -> None:
         """Add a message to the conversation history"""
-        if role == "human":
-            self.messages.append(HumanMessage(content=message))
-        elif role == "ai":
-            self.messages.append(AIMessage(content=message))
-        else:
+        if role not in ["system", "human", "ai"]:
             raise ValueError(f"Invalid role: {role}")
+        self.messages.append((role, message))
 
     def create_code(self, task: CodingTask) -> str:
         """Generate code based on task requirements"""
