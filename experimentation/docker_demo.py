@@ -2,18 +2,33 @@
 Demo script showing Docker-based code execution using CAMEL toolkit
 """
 import time
+import json
+from pathlib import Path
 from camel.toolkits.code_execution import DockerInterpreter
+
+# Docker configuration
+DOCKER_CONFIG = {
+    "image": "python:3.11-slim",
+    "working_dir": "/workspace",
+    "volumes": {
+        str(Path.cwd()): {"bind": "/workspace", "mode": "rw"}
+    },
+    "environment": {
+        "PYTHONUNBUFFERED": "1"
+    }
+}
 
 def run_docker_demo():
     """Run example code in Docker container"""
     print("\nCAMEL Docker Code Execution Demo")
     print("-" * 40)
     
-    # Initialize Docker interpreter
+    # Initialize Docker interpreter with configuration
     interpreter = DockerInterpreter(
         require_confirm=False,  # Don't require confirmation for demo
         print_stdout=True,      # Show stdout from container
-        print_stderr=True       # Show stderr from container
+        print_stderr=True,      # Show stderr from container
+        docker_config=DOCKER_CONFIG
     )
     
     # Test cases to demonstrate different aspects
@@ -77,9 +92,20 @@ ls -la
             # Show execution time
             print(f"\nExecution time: {end_time - start_time:.2f} seconds")
             
-            if result.stderr:
+            # Handle result output
+            if isinstance(result, dict):
+                if result.get('stderr'):
+                    print("\nErrors/Warnings:")
+                    print(result['stderr'])
+                if result.get('stdout'):
+                    print("\nOutput:")
+                    print(result['stdout'])
+            elif hasattr(result, 'stderr') and result.stderr:
                 print("\nErrors/Warnings:")
                 print(result.stderr)
+            elif isinstance(result, str):
+                print("\nOutput:")
+                print(result)
                 
         except Exception as e:
             print(f"Error running {test['name']}: {str(e)}")
