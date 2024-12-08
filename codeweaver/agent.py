@@ -16,14 +16,12 @@ class CodingAgent:
     
     def __init__(self):
         """Initialize the coding agent"""
-        self.api_key = os.getenv("DEEPSEEK_API_KEY")
-        if not self.api_key:
-            raise ValueError("DEEPSEEK_API_KEY environment variable not set")
+        if not os.getenv("OPENAI_API_KEY"):
+            raise ValueError("OPENAI_API_KEY environment variable not set")
             
         # Initialize the chat agent
         self.agent = ChatAgent(
             system_message="You are an expert programmer. Write clean, efficient code following best practices. Only return the code, no explanations.",
-            api_key=self.api_key,
             temperature=0.7
         )
         
