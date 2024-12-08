@@ -4,7 +4,7 @@ Autonomous coding agent implementation using CAMEL
 import os
 from dataclasses import dataclass
 from typing import Optional
-from camel.agents import ChatAgent
+from camel.agents import ChatAgent, RoleType
 
 @dataclass
 class CodingTask:
