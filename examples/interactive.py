@@ -6,11 +6,22 @@ import os
 from codeweaver.agent import CodingAgent, CodingTask
 
 async def main():
+    # Get model selection
+    print("\nSelect model to use:")
+    print("1. OpenAI (default)")
+    print("2. DeepSeek")
+    choice = input("> ").strip()
+    
+    model = "openai" if choice != "2" else "deepseek"
+    
     try:
-        agent = CodingAgent()
+        agent = CodingAgent(model=model)
     except ValueError as e:
         print(f"Error: {e}")
-        print("Please set OPENAI_API_KEY environment variable")
+        if model == "openai":
+            print("Please set OPENAI_API_KEY environment variable")
+        else:
+            print("Please set DEEPSEEK_API_KEY environment variable")
         return
     
     print("🤖 CodeWeaver Agent Test Environment")

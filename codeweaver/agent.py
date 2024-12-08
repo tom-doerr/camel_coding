@@ -18,11 +18,25 @@ class CodingTask:
 class CodingAgent:
     """An autonomous coding agent using OpenAI API with CAMEL integration"""
     
-    def __init__(self, system_message=None):
-        """Initialize the coding agent"""
-        self.api_key = os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            raise ValueError("OPENAI_API_KEY environment variable not set")
+    def __init__(self, system_message=None, model="openai"):
+        """Initialize the coding agent
+        
+        Args:
+            system_message: Optional custom system message
+            model: Model to use - either 'openai' or 'deepseek'
+        """
+        self.model = model.lower()
+        
+        if self.model == "openai":
+            self.api_key = os.getenv("OPENAI_API_KEY")
+            if not self.api_key:
+                raise ValueError("OPENAI_API_KEY environment variable not set")
+        elif self.model == "deepseek":
+            self.api_key = os.getenv("DEEPSEEK_API_KEY")
+            if not self.api_key:
+                raise ValueError("DEEPSEEK_API_KEY environment variable not set")
+        else:
+            raise ValueError(f"Unsupported model: {model}")
 
         # Initialize system message generator
         role = "Expert Programmer"
