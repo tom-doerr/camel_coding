@@ -6,12 +6,12 @@ import os
 from codeweaver.agent import CodingAgent, CodingTask
 
 async def main():
-    # Ensure API key is set
-    if "DEEPSEEK_API_KEY" not in os.environ:
+    try:
+        agent = CodingAgent()
+    except ValueError as e:
+        print(f"Error: {e}")
         print("Please set DEEPSEEK_API_KEY environment variable")
         return
-
-    agent = CodingAgent()
     
     # Example task
     task = CodingTask(
